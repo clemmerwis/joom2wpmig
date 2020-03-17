@@ -1,6 +1,12 @@
 <?php
 error_reporting(E_ALL); 
+require_once 'vendor/autoload.php';
 require_once './includes.php';
+
+
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
+use PhpOffice\PhpSpreadsheet\Helper\Sample;
 
 function createUsersSQL($ID, $user_login, $user_pass, $display_name, $user_registered="''", $user_nicename="''", $user_email="''", $user_url="''", $user_activation_key="''", $user_status=0) 
 {

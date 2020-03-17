@@ -1,4 +1,5 @@
 <?php 
+use PhpOffice\PhpSpreadsheet\Helper\Sample;
 
 $authors_dict = array(
     63 => 'Thomas R. Eddlem',
@@ -115,6 +116,28 @@ function generatePassword()
         $pass[] = $full;
     }
     return implode($pass); //turn the array into a string
+}
+
+function Get_the_filename($filename=null)
+{
+    $helper = new Sample();
+    if (!isset($filename))
+    {
+        // $val will return false if no arg is passed
+        $val = getopt("p:");
+        if ($val) 
+        {
+            print_r($val);
+        }
+        else 
+        {
+            $helper->isCli() ? $helper->log('Enter file name as parameter') : die();
+            $filename = trim(fgets(STDIN, 1024));
+        } 
+        $filename = isset($filename) ? $filename : $val["p"];
+    }
+    $inputFileName = 'C:\Users\clemmer\Desktop\migAssets\\'.$filename;
+    return $inputFileName;
 }
 
 ?>
