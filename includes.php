@@ -140,4 +140,43 @@ function Get_the_filename($filename=null)
     return $inputFileName;
 }
 
+function createColumnArr($columnIterator, $worksheet, $lastColumn)
+{
+    // Loop columns to find ID column
+    $columnArr = array();
+    $columnCurrent = $columnIterator->current();
+    while (true)
+    {
+        // Get cell, false = do not create new cell if cell does not exist
+        $colLetter = $columnCurrent->getColumnIndex();
+        $cell = $worksheet->getCell($colLetter."1", false);
+        $cellvalue = strval($cell->getValue());
+        $columnArr[$colLetter] = $cellvalue; 
+
+
+        // Break if on column P (last column)
+        if ($colLetter === $lastColumn) 
+        {
+            break;    
+        }
+
+        // Iterate to next column
+        $columnIterator->next();
+        $columnCurrent = $columnIterator->current();
+
+    }
+    return $columnArr;
+}
+
+function getColumnIndex($title, $columnArr)
+{
+    foreach ($columnArr as $key => $value) 
+    {
+        if ($value === $title)
+        {
+            return $key;
+        }
+    }
+}
+
 ?>
