@@ -7,7 +7,7 @@ use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use PhpOffice\PhpSpreadsheet\Helper\Sample;
 
-function createPostsImageSQL($ID, $post_author, $post_date, $post_name="'image'", $post_title="'image'", $post_content="''", $post_date_gmt="''", $post_modified="''", $post_modified_gmt="''", $post_excerpt="''", $post_status="'closed'", $comment_status="'open'", $ping_status="'closed'", $post_password="''", $to_ping="''", $pinged="''", $post_content_filtered="''", $post_parent=0, $guid="''", $menu_order=0, $post_type="'post'", $post_mime_type="''", $comment_count=0) 
+function createPostsImageSQL($ID, $post_author, $post_date, $post_parent, $post_name="'image'", $post_title="'image'", $post_content="''", $post_date_gmt="''", $post_modified="''", $post_modified_gmt="''", $post_excerpt="''", $post_status="'inherit'", $comment_status="'open'", $ping_status="'closed'", $post_password="''", $to_ping="''", $pinged="''", $post_content_filtered="''", $guid="''", $menu_order=0, $post_type="'attachment'", $post_mime_type="'image/jpeg'", $comment_count=0) 
 {
     $post_date_gmt = $post_date;
     $post_modified = $post_date;
@@ -63,8 +63,8 @@ while (!($rowCurrent->getRowIndex() > $lastRow))
     // Get ID
     $ID_index = getColumnIndex("ID", $columnArr);
     $ID_cell = $worksheet->getCell($ID_index.strval($rowIndex), false);
-    $ID = $ID_cell->getValue();
-    $parametersArr["ID"] = "'" . intval($ID) . "'";
+    $poast_parent = $ID_cell->getValue();
+    $parametersArr["post_parent"] = "'" . intval($post_parent) . "'";
 
     // Get post_author
     $postAuthor_index = getColumnIndex("post_author", $columnArr);
@@ -72,40 +72,13 @@ while (!($rowCurrent->getRowIndex() > $lastRow))
     $postAuthor = $postAuthor_cell->getValue();
     $parametersArr["post_author"] = "'" . strval($postAuthor) . "'";
 
-    // Get post_name
-    $postName_index = getColumnIndex("post_name", $columnArr);
-    $postName_cell = $worksheet->getCell($postName_index.strval($rowIndex), false);
-    $postName = $postName_cell->getValue();
-    $parametersArr["post_name"] = "'" . strval($postName) . "'";
-
-    // Get post_title
-    $postTitle_index = getColumnIndex("post_title", $columnArr);
-    $postTitle_cell = $worksheet->getCell($postTitle_index.strval($rowIndex), false);
-    $postTitle = $postTitle_cell->getValue();
-    $parametersArr["post_title"] = "'" . strval($postTitle) . "'";
-
-    // Get $post_content 
-    $postContent_index = getColumnIndex("post_content", $columnArr);
-    $postContent_cell = $worksheet->getCell($postContent_index.strval($rowIndex), false);
-    if ($postContent_cell === null) 
-    {
-        continue;
-        $helper->log($ID . $rowIndex);
-    }
-    $postContent = $postContent_cell->getValue();
-    // Add backslashes to escape single quotes
-    $postContent = str_replace("'", "\'", $postContent);
-    $postContent = str_replace("_x000D_", "", $postContent);
-    $postContent = str_replace("<p>{modulepos inner_text_ad}</p>", "", $postContent);
-    $parametersArr["post_content"] = "'" . strval($postContent) . "'";
-
     // Get $post_date 
     $postDate_index = getColumnIndex("post_date", $columnArr);
     $postDate_cell = $worksheet->getCell($postDate_index.strval($rowIndex), false);
     $postDate = $postDate_cell->getValue();
     $parametersArr["post_date"] = "'" . strval($postDate) . "'";
 
-    createPostsSQL($parametersArr["ID"], $parametersArr["post_author"], $parametersArr["post_name"], $parametersArr["post_title"], $parametersArr["post_content"], $parametersArr["post_date"]);
+    createPostsSQL($parametersArr["post_parent"], $parametersArr["post_author"], $parametersArr["post_name"], $parametersArr["post_title"], $parametersArr["post_content"], $parametersArr["post_date"]);
     echo "<br>"; 
 
     // Iterate to next row
