@@ -7,7 +7,7 @@ use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use PhpOffice\PhpSpreadsheet\Helper\Sample;
 
-function createPostsSQL($ID, $post_author, $post_name, $post_title, $post_content, $post_date, $post_date_gmt="''", $post_modified="''", $post_modified_gmt="''", $post_excerpt="''", $post_status="'publish'", $comment_status="'open'", $ping_status="'open'", $post_password="''", $to_ping="''", $pinged="''", $post_content_filtered="''", $post_parent=0, $guid="''", $menu_order=0, $post_type="'post'", $post_mime_type="''", $comment_count=0) 
+function createPostsSQL($fh, $ID, $post_author, $post_name, $post_title, $post_content, $post_date, $post_date_gmt="''", $post_modified="''", $post_modified_gmt="''", $post_excerpt="''", $post_status="'publish'", $comment_status="'open'", $ping_status="'open'", $post_password="''", $to_ping="''", $pinged="''", $post_content_filtered="''", $post_parent=0, $guid="''", $menu_order=0, $post_type="'post'", $post_mime_type="''", $comment_count=0) 
 {
     $post_date_gmt = $post_date;
     $post_modified = $post_date;
@@ -15,20 +15,25 @@ function createPostsSQL($ID, $post_author, $post_name, $post_title, $post_conten
 
     $eot = <<<EOT
     INSERT INTO `wp_posts`(`ID`, `post_author`, `post_date`, `post_date_gmt`, `post_content`, `post_title`, `post_excerpt`, `post_status`, `comment_status`, `ping_status`, `post_password`, `post_name`, `to_ping`, `pinged`, `post_modified`, `post_modified_gmt`, `post_content_filtered`, `post_parent`, `guid`, `menu_order`, `post_type`, `post_mime_type`, `comment_count`) VALUES ($ID, $post_author, $post_date, $post_date_gmt, $post_content, $post_title, $post_excerpt, $post_status, $comment_status,$ping_status, $post_password, $post_name, $to_ping, $pinged, $post_modified, $post_modified_gmt, $post_content_filtered, $post_parent, $guid, $menu_order, $post_type, $post_mime_type, $comment_count);
+    
+    
     EOT;
 
-    file_put_contents("output.txt", $eot);
+    fwrite($fh, $eot); 
 }
 
 // Script Start
 // ------------
+$options = getopt("p:");
 
 // Create helper for logging messages to the terminal
 $helper = new Sample();
 $helper->log("Start Time");
 
 // Get excel file
-$inputFileName = Get_the_filename("newpoliticsContent.xlsx");
+// change me catnum
+$fname = $options["p"] . "Content-formatted.xlsx";
+$inputFileName = Get_the_filename($fname);
 
 // Load spreadsheet
 $reader = new \PhpOffice\PhpSpreadsheet\Reader\Xlsx();
@@ -54,6 +59,8 @@ $rowCurrent = $rowIterator->current();
 // Create array to collect SQL parameters
 $parametersArr = array();
 
+$myFile = "C:/Users/chris/Desktop/migAssets/postsMySQL/" . $options["p"] . "output.txt";
+$fh = fopen($myFile, 'w+') or die("can't open file");
 // Get vars for sql statement
 while (!($rowCurrent->getRowIndex() > $lastRow)) 
 {
@@ -61,7 +68,7 @@ while (!($rowCurrent->getRowIndex() > $lastRow))
     $rowIndex = $rowCurrent->getRowIndex();
     
     // Get ID
-    $ID_index = getColumnIndex("ID", $columnArr);
+    $ID_index = getColumnIndex("id", $columnArr);
     $ID_cell = $worksheet->getCell($ID_index.strval($rowIndex), false);
     $ID = $ID_cell->getValue();
     $parametersArr["ID"] = "'" . intval($ID) . "'";
@@ -82,6 +89,7 @@ while (!($rowCurrent->getRowIndex() > $lastRow))
     $postTitle_index = getColumnIndex("post_title", $columnArr);
     $postTitle_cell = $worksheet->getCell($postTitle_index.strval($rowIndex), false);
     $postTitle = $postTitle_cell->getValue();
+    $postTitle = str_replace("'", "\'", $postTitle);
     $parametersArr["post_title"] = "'" . strval($postTitle) . "'";
 
     // Get $post_content 
@@ -89,13 +97,12 @@ while (!($rowCurrent->getRowIndex() > $lastRow))
     $postContent_cell = $worksheet->getCell($postContent_index.strval($rowIndex), false);
     if ($postContent_cell === null) 
     {
-        continue;
         $helper->log($ID . $rowIndex);
+        continue;
     }
     $postContent = $postContent_cell->getValue();
     // Add backslashes to escape single quotes
     $postContent = str_replace("'", "\'", $postContent);
-    $postContent = str_replace("_x000D_", "", $postContent);
     $postContent = str_replace("<p>{modulepos inner_text_ad}</p>", "", $postContent);
     $parametersArr["post_content"] = "'" . strval($postContent) . "'";
 
@@ -105,56 +112,14 @@ while (!($rowCurrent->getRowIndex() > $lastRow))
     $postDate = $postDate_cell->getValue();
     $parametersArr["post_date"] = "'" . strval($postDate) . "'";
 
-    createPostsSQL($parametersArr["ID"], $parametersArr["post_author"], $parametersArr["post_name"], $parametersArr["post_title"], $parametersArr["post_content"], $parametersArr["post_date"]);
-    echo "<br>"; 
+    createPostsSQL($fh, $parametersArr["ID"], $parametersArr["post_author"], $parametersArr["post_name"], $parametersArr["post_title"], $parametersArr["post_content"], $parametersArr["post_date"]);
 
     // Iterate to next row
     $rowIterator->next();
     $rowCurrent = $rowIterator->current();
 }
-
-
-
-// Loop columns to find ID column
-// while (true)
-// {
-//     // Get cell, false = do not create new cell if cell does not exist
-//     $colLetter = $columnCurrent->getColumnIndex();
-//     $cell = $worksheet->getCell($colLetter."1", false);
-//     $cellvalue = strval($cell->getValue());
-
-//     if ($cellvalue === "ID") 
-//     {
-//         while (!($rowCurrent->getRowIndex() > $lastRow)) 
-//         {
-//             $rowIndex = $rowCurrent->getRowIndex();
-//             $cell = $worksheet->getCell($colLetter.strval($rowIndex), false);
-//             $cellvalue = strval($cell->getValue());
-
-//             $helper->log($i . " : " . $cellvalue);
-
-//             // Iterate to next row
-//             $rowIterator->next();
-//             $rowCurrent = $rowIterator->current();
-//         }
-//         break;
-//     }
-//     $helper->log($colLetter . " " . $cellvalue);
-
-//     // Iterate to next column
-//     $columnIterator->next();
-//     $columnCurrent = $columnIterator->current();
-
-//     // Break if on column P (last column)
-//     if ($colLetter === $lastColumn) 
-//     {
-//         break;    
-//     }
-// }
-
+fclose($fh);
+$helper->log("File created: $myFile");
 $helper->log("End Time");
-
 // eval(\Psy\sh());
-// createPostsSQL($ID, $post_author, $post_name, $post_title, $post_content, $post_date);
-
 ?>

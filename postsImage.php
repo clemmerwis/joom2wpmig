@@ -7,14 +7,16 @@ use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use PhpOffice\PhpSpreadsheet\Helper\Sample;
 
-function createPostsImageSQL($ID, $post_author, $post_date, $post_parent, $post_name="'image'", $post_title="'image'", $post_content="''", $post_date_gmt="''", $post_modified="''", $post_modified_gmt="''", $post_excerpt="''", $post_status="'inherit'", $comment_status="'open'", $ping_status="'closed'", $post_password="''", $to_ping="''", $pinged="''", $post_content_filtered="''", $guid="''", $menu_order=0, $post_type="'attachment'", $post_mime_type="'image/jpeg'", $comment_count=0) 
+function createPostsImageSQL($post_author, $post_date, $post_name, $post_parent, $guid, $post_title="''", $post_content="''", $post_date_gmt="''", $post_modified="''", $post_modified_gmt="''", $post_excerpt="''", $post_status="'inherit'", $comment_status="'open'", $ping_status="'closed'", $post_password="''", $to_ping="''", $pinged="''", $post_content_filtered="''", $menu_order=0, $post_type="'attachment'", $post_mime_type="'image/jpeg'", $comment_count=0) 
 {
     $post_date_gmt = $post_date;
     $post_modified = $post_date;
     $post_modified_gmt = $post_date;
 
+    $post_title = $post_name;
+
     $eot = <<<EOT
-    INSERT INTO `wp_posts`(`ID`, `post_author`, `post_date`, `post_date_gmt`, `post_content`, `post_title`, `post_excerpt`, `post_status`, `comment_status`, `ping_status`, `post_password`, `post_name`, `to_ping`, `pinged`, `post_modified`, `post_modified_gmt`, `post_content_filtered`, `post_parent`, `guid`, `menu_order`, `post_type`, `post_mime_type`, `comment_count`) VALUES ($ID, $post_author, $post_date, $post_date_gmt, $post_content, $post_title, $post_excerpt, $post_status, $comment_status,$ping_status, $post_password, $post_name, $to_ping, $pinged, $post_modified, $post_modified_gmt, $post_content_filtered, $post_parent, $guid, $menu_order, $post_type, $post_mime_type, $comment_count);
+    INSERT INTO `wp_posts`(`post_author`, `post_date`, `post_date_gmt`, `post_content`, `post_title`, `post_excerpt`, `post_status`, `comment_status`, `ping_status`, `post_password`, `post_name`, `to_ping`, `pinged`, `post_modified`, `post_modified_gmt`, `post_content_filtered`, `post_parent`, `guid`, `menu_order`, `post_type`, `post_mime_type`, `comment_count`) VALUES ($post_author, $post_date, $post_date_gmt, $post_content, $post_title, $post_excerpt, $post_status, $comment_status,$ping_status, $post_password, $post_name, $to_ping, $pinged, $post_modified, $post_modified_gmt, $post_content_filtered, $post_parent, $guid, $menu_order, $post_type, $post_mime_type, $comment_count);
     EOT;
 
     file_put_contents("output.txt", $eot);
@@ -78,8 +80,8 @@ while (!($rowCurrent->getRowIndex() > $lastRow))
     $postDate = $postDate_cell->getValue();
     $parametersArr["post_date"] = "'" . strval($postDate) . "'";
 
-    createPostsSQL($parametersArr["post_parent"], $parametersArr["post_author"], $parametersArr["post_name"], $parametersArr["post_title"], $parametersArr["post_content"], $parametersArr["post_date"]);
-    echo "<br>"; 
+    createPostsSQL($parametersArr["post_author"], $parametersArr["post_date"], $parametersArr["post_parent"]);
+    echo "<br>";   
 
     // Iterate to next row
     $rowIterator->next();
