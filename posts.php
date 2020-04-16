@@ -30,6 +30,11 @@ $options = getopt("p:");
 $helper = new Sample();
 $helper->log("Start Time");
 
+// Get skipped posts
+$jsondata = file_get_contents("C:/Users/chris/Desktop/migAssets/json/culture/skipped/" . $options["p"] . "feats.json");
+$skipped_ids_urls = json_decode($jsondata);
+
+
 // Get excel file
 // change me catnum
 $fname = $options["p"] . "Content-formatted.xlsx";
@@ -61,7 +66,7 @@ $parametersArr = array();
 
 $myFile = "C:/Users/chris/Desktop/migAssets/postsMySQL/" . $options["p"] . "output.txt";
 $fh = fopen($myFile, 'w+') or die("can't open file");
-// Get vars for sql statement
+// Get vars for sql statement, stop once greater than max row
 while (!($rowCurrent->getRowIndex() > $lastRow)) 
 {
     // Get row for loop
@@ -98,7 +103,7 @@ while (!($rowCurrent->getRowIndex() > $lastRow))
     if ($postContent_cell === null) 
     {
         $helper->log($ID . $rowIndex);
-        continue;
+        die();
     }
     $postContent = $postContent_cell->getValue();
     // Add backslashes to escape single quotes
