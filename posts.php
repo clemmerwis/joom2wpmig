@@ -30,10 +30,6 @@ $options = getopt("p:");
 $helper = new Sample();
 $helper->log("Start Time");
 
-// Get skipped posts
-$jsondata = file_get_contents("C:/Users/chris/Desktop/migAssets/json/culture/skipped/" . $options["p"] . "feats.json");
-$skipped_ids_urls = json_decode($jsondata);
-
 
 // Get excel file
 // change me catnum

@@ -1,46 +1,46 @@
 <?php 
 
 require './vendor/autoload.php';
-// $defaultImg_name =  
-// if ( isset($_POST['submit']) )
-// {
-//     // Get the uploaded file
-//     $jsondata = file_get_contents($_FILES['thefile']['tmp_name']);
-//     $ids_urls = json_decode($jsondata);
-
-//     foreach ($ids_urls as $id => $url) 
-//     {
-//         $filename = basename($url);
-//         // Remote file url
-//         $remoteFile = $url;
-
-//         // Initialize cURL
-//         $ch = curl_init($remoteFile);
-//         curl_setopt($ch, CURLOPT_NOBODY, true);
-//         curl_exec($ch);
-//         $responseCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-//         curl_close($ch);
-
-//         // Check the response code
-//         if($responseCode != 200)
-//         {
-//             // $filename = basename($url);
-//             // $tempLocation = "C:/xampp/htdocs/tnadev/tmp/" . $filename;
-//             // copy($url, $tempLocation);
-//             echo "$id : $url <br>";
-//         }
-
-//     }
-
-//     $processed = "Process Completed";
-// }
-
-$jsondata = file_get_contents("C:/Users/chris/Desktop/migAssets/json/culture/skipped/252feats.json");
-$ids_urls = json_decode($jsondata);
-if (array_key_exists($ID, $ids_urls))
+if ( isset($_POST['submit']) )
 {
-    
+    // Get the uploaded file
+    $jsondata = file_get_contents($_FILES['thefile']['tmp_name']);
+    $ids_urls = json_decode($jsondata);
+    $i = 1;
+    foreach ($ids_urls as $id => $url) 
+    {
+        $filename = basename($url);
+        // Remote file url
+        $remoteFile = str_replace(" ", "%20", $url);
+
+        // Initialize cURL
+        $ch = curl_init($remoteFile);
+        curl_setopt($ch, CURLOPT_NOBODY, true);
+        curl_exec($ch);
+        $responseCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close($ch);
+
+        // Check the response code
+        if($responseCode != 200)
+        {
+            // $filename = basename($url);
+            // $tempLocation = "C:/xampp/htdocs/tnadev/tmp/" . $filename;
+            // copy($url, $tempLocation);
+            echo "$i : $id<br>";
+            echo "$url<br>";
+            $i++;
+        }
+    }
+
+    $processed = "Process Completed";
 }
+
+// $jsondata = file_get_contents("C:/Users/chris/Desktop/migAssets/json/culture/skipped/252feats.json");
+// $ids_urls = json_decode($jsondata);
+// if (array_key_exists($ID, $ids_urls))
+// {
+    
+// }
 
 // eval(\Psy\sh());
 ?>
